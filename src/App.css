@@ -1,0 +1,175 @@
+/* App.css - Hacker Style (Black background + Green text) */
+
+body {
+  margin: 0;
+  font-family: "Courier New", monospace;
+  background-color: #000;
+  color: #00ff00;
+  min-height: 100vh;
+}
+
+.app-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  text-shadow: 0 0 10px #00ff00;
+}
+
+h2, h3 {
+  text-shadow: 0 0 5px #00ff00;
+  margin-top: 20px;
+}
+
+p {
+  color: #00ff00;
+  font-size: 1rem;
+}
+
+input[type="file"] {
+  margin: 15px 0;
+  background: #111;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+button {
+  background: black;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  background: #00ff00;
+  color: black;
+  font-weight: bold;
+}
+
+.preview-section img {
+  max-width: 100%;
+  margin-top: 20px;
+  border: 2px solid #00ff00;
+  border-radius: 5px;
+  box-shadow: 0 0 20px #00ff00;
+}
+
+.result-section {
+  margin-top: 30px;
+  padding: 15px;
+  border: 1px dashed #00ff00;
+  border-radius: 8px;
+  background: rgba(0, 255, 0, 0.05);
+}
+
+.caption-list,
+.hashtag-list {
+  list-style: none;
+  padding: 0;
+}
+
+.caption-list li,
+.hashtag-list li {
+  margin: 8px 0;
+  padding: 8px;
+  border-bottom: 1px dotted #00ff00;
+  font-size: 1rem;
+}
+
+.loader {
+  border: 5px solid #111;
+  border-top: 5px solid #00ff00;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* Terminal-style panels */
+.panel {
+  border: 1px solid #00ff00;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 8px;
+  background: rgba(0, 255, 0, 0.05);
+  box-shadow: 0 0 12px #00ff00;
+}
+
+/* Cursor blink effect */
+.blink-cursor::after {
+  content: "_";
+  margin-left: 5px;
+  color: #00ff00;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Apply to headings */
+h1, h2, h3 {
+  font-family: "Courier New", monospace;
+}
+
+h1.blink-cursor {
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+  color: #00ff00;
+  text-shadow: 0 0 10px #00ff00;
+}
+h2.blink-cursor {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #00ff00;
+  text-shadow: 0 0 8px #00ff00;
+}
+
+h3.blink-cursor {
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+  color: #00ff00;
+  text-shadow: 0 0 6px #00ff00;
+}
+
+.dropdown {
+  background-color: #111;
+  color: #0f0;
+  border: 1px solid #0f0;
+  padding: 6px;
+  margin: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dropdown option[value="dog"],
+.dropdown option[value="sunglasses"],
+.dropdown option[value="flower"] {
+  background-color: #111;
+  color: #0f0; 
+  font-weight: bold;
+}
+
+
