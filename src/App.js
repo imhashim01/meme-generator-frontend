@@ -110,9 +110,6 @@ function App() {
               className="dropdown"
             >
               <option value="">No Filter</option>
-              <option value="dog">Dog Ears</option>
-              <option value="sunglasses">Sunglasses</option>
-              <option value="flower">Flower Crown</option>
               <option value="grayscale">Grayscale</option>
               <option value="sepia">Sepia</option>
               <option value="blur">Blur</option>
