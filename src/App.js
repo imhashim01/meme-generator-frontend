@@ -85,7 +85,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1 className="blink-cursor">💻 Meme Generator</h1>
+      <h1 className="blink-cursor">💻 AI Meme Generator</h1>
       <p>Upload an image, choose a filter, and get AI-powered captions.</p>
 
       {/* View Switcher */}
