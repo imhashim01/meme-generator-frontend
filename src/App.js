@@ -3,7 +3,8 @@ import axios from "axios";
 import CameraView from "./CameraView";
 import "./App.css";
 
-const API_BASE = "https://meme-generator-backend-production-fd5e.up.railway.app/";
+const API_BASE = "https://meme-generator-backend-production-fd5e.up.railway.app/api";
+
 
 function App() {
   const [file, setFile] = useState(null);
