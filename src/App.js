@@ -14,44 +14,53 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
-  const [viewMode, setViewMode] = useState("memeGenerator"); // memeGenerator | cameraView
+  const [viewMode, setViewMode] = useState("memeGenerator"); // 'memeGenerator' or 'cameraView'
 
-  // 🔊 TTS State
+  // Voice States
   const [voices, setVoices] = useState([]);
   const [selectedVoice, setSelectedVoice] = useState("");
+  const [funnyMode, setFunnyMode] = useState(false);
 
-  // Load available voices
   useEffect(() => {
+    const synth = window.speechSynthesis;
+
     const loadVoices = () => {
-      const synthVoices = window.speechSynthesis.getVoices();
-      setVoices(synthVoices);
-      if (synthVoices.length > 0 && !selectedVoice) {
-        setSelectedVoice(synthVoices[0].name);
+      const availableVoices = synth.getVoices();
+      setVoices(availableVoices);
+      if (availableVoices.length > 0 && !selectedVoice) {
+        setSelectedVoice(availableVoices[0].name);
       }
     };
 
     loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = loadVoices;
+    }
   }, [selectedVoice]);
 
-  // 📢 Speak caption
   const speakCaption = (text) => {
     if (!("speechSynthesis" in window)) {
       alert("Sorry, your browser does not support text-to-speech.");
       return;
     }
+
     const utterance = new SpeechSynthesisUtterance(text);
 
     const voice = voices.find((v) => v.name === selectedVoice);
     if (voice) utterance.voice = voice;
 
-    utterance.rate = 1; // speed (0.5 slow - 2 fast)
-    utterance.pitch = 1; // tone (0.5 deep - 2 squeaky)
+    if (funnyMode) {
+      // Random pitch & speed for funny effect 🤪
+      utterance.rate = Math.random() * (2 - 0.5) + 0.5; // between 0.5 and 2
+      utterance.pitch = Math.random() * (2 - 0.5) + 0.5; // between 0.5 and 2
+    } else {
+      utterance.rate = 1;
+      utterance.pitch = 1;
+    }
 
     window.speechSynthesis.speak(utterance);
   };
 
-  // Handle file upload
   const handleFileChange = (e) => {
     const f = e.target.files[0];
     if (f) {
@@ -171,20 +180,28 @@ function App() {
           {/* Loader */}
           {loading && <div className="loader"></div>}
 
-          {/* Voice Selector */}
+          {/* Voice Settings */}
           {voices.length > 0 && (
             <div className="panel">
-              <label>🎙 Choose Voice: </label>
+              <h3>🔊 Voice Options</h3>
               <select
                 value={selectedVoice}
                 onChange={(e) => setSelectedVoice(e.target.value)}
               >
                 {voices.map((v, i) => (
                   <option key={i} value={v.name}>
-                    {v.name}
+                    {v.name} ({v.lang})
                   </option>
                 ))}
               </select>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={funnyMode}
+                  onChange={() => setFunnyMode(!funnyMode)}
+                />
+                🤪 Funny Voice Mode
+              </label>
             </div>
           )}
 
@@ -199,9 +216,7 @@ function App() {
                     <button onClick={() => handleFinalizeMeme(c)} disabled={loading}>
                       🎨 Apply Filter & Meme
                     </button>
-                    <button onClick={() => speakCaption(c)}>
-                      🔊 Read Aloud
-                    </button>
+                    <button onClick={() => speakCaption(c)}>🔊 Read Aloud</button>
                   </li>
                 ))}
               </ul>
