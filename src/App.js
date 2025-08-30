@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CameraView from "./CameraView";
 import "./App.css";
 
-// 🔑 Backend URL
 const API_BASE = "https://meme-generator-backend-production-fd5e.up.railway.app/api";
 
 function App() {
@@ -15,11 +14,44 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
-  const [viewMode, setViewMode] = useState("memeGenerator"); // 'memeGenerator' or 'cameraView'
+  const [viewMode, setViewMode] = useState("memeGenerator"); // memeGenerator | cameraView
 
-  // ----------------------------
-  // File Upload Handler
-  // ----------------------------
+  // 🔊 TTS State
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState("");
+
+  // Load available voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const synthVoices = window.speechSynthesis.getVoices();
+      setVoices(synthVoices);
+      if (synthVoices.length > 0 && !selectedVoice) {
+        setSelectedVoice(synthVoices[0].name);
+      }
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, [selectedVoice]);
+
+  // 📢 Speak caption
+  const speakCaption = (text) => {
+    if (!("speechSynthesis" in window)) {
+      alert("Sorry, your browser does not support text-to-speech.");
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    const voice = voices.find((v) => v.name === selectedVoice);
+    if (voice) utterance.voice = voice;
+
+    utterance.rate = 1; // speed (0.5 slow - 2 fast)
+    utterance.pitch = 1; // tone (0.5 deep - 2 squeaky)
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Handle file upload
   const handleFileChange = (e) => {
     const f = e.target.files[0];
     if (f) {
@@ -32,9 +64,6 @@ function App() {
     }
   };
 
-  // ----------------------------
-  // Generate Captions
-  // ----------------------------
   const handleUpload = async () => {
     if (!file) {
       setError("Please upload an image first.");
@@ -46,31 +75,21 @@ function App() {
     const formData = new FormData();
     formData.append("image", file);
 
-    const url = `${API_BASE}/generate-captions`;
-    console.log("📡 Sending to:", url);
-
     try {
-      const res = await axios.post(url, formData, {
+      const res = await axios.post(`${API_BASE}/generate-captions`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("✅ Caption Response:", res.data);
-
       setCaptions(res.data.captions || []);
       setHashtags(res.data.hashtags || []);
       setDescription(res.data.description || "");
     } catch (err) {
-      console.error("❌ Caption generation failed:", err.response || err);
-      setError(
-        err.response?.data?.error || "Failed to generate captions. Check backend logs."
-      );
+      console.error("❌ Caption generation failed:", err);
+      setError("Failed to generate captions. Is the backend running?");
     } finally {
       setLoading(false);
     }
   };
 
-  // ----------------------------
-  // Finalize Meme
-  // ----------------------------
   const handleFinalizeMeme = async (caption) => {
     if (!file) {
       setError("Please upload an image first.");
@@ -85,28 +104,20 @@ function App() {
     formData.append("position", "bottom");
     formData.append("filter", selectedFilter);
 
-    const url = `${API_BASE}/finalize-meme`;
-    console.log("📡 Sending to:", url);
-
     try {
-      const res = await axios.post(url, formData, {
+      const res = await axios.post(`${API_BASE}/finalize-meme`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("✅ Final Meme Response:", res.data);
-
       const memeUrl = "data:image/jpeg;base64," + res.data.image_base64;
       setPreview(memeUrl);
     } catch (err) {
-      console.error("❌ Meme finalization failed:", err.response || err);
-      setError(err.response?.data?.error || "Failed to apply filter/meme.");
+      console.error("❌ Meme finalization failed:", err);
+      setError("Failed to apply filter/meme.");
     } finally {
       setLoading(false);
     }
   };
 
-  // ----------------------------
-  // JSX Rendering
-  // ----------------------------
   return (
     <div className="app-container">
       <h1 className="blink-cursor">💻 AI Meme Generator</h1>
@@ -160,6 +171,23 @@ function App() {
           {/* Loader */}
           {loading && <div className="loader"></div>}
 
+          {/* Voice Selector */}
+          {voices.length > 0 && (
+            <div className="panel">
+              <label>🎙 Choose Voice: </label>
+              <select
+                value={selectedVoice}
+                onChange={(e) => setSelectedVoice(e.target.value)}
+              >
+                {voices.map((v, i) => (
+                  <option key={i} value={v.name}>
+                    {v.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Results */}
           {(captions.length > 0 || hashtags.length > 0) && (
             <div className="result-section panel">
@@ -168,11 +196,11 @@ function App() {
                 {captions.map((c, i) => (
                   <li key={i}>
                     {c}{" "}
-                    <button
-                      onClick={() => handleFinalizeMeme(c)}
-                      disabled={loading}
-                    >
+                    <button onClick={() => handleFinalizeMeme(c)} disabled={loading}>
                       🎨 Apply Filter & Meme
+                    </button>
+                    <button onClick={() => speakCaption(c)}>
+                      🔊 Read Aloud
                     </button>
                   </li>
                 ))}
